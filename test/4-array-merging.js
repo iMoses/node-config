@@ -23,22 +23,30 @@ var CONFIG = requireUncached(__dirname + '/../lib/config');
 var vows = require('vows'),
     assert = require('assert');
 
+require('coffeescript').register();
+require('ts-node').register({
+  lazy: true,
+  compilerOptions: {
+    allowJs: true,
+  }
+});
+
 vows.describe('Tests for merging arrays').addBatch({
   'Array merging tests Tests': {
     topic: function() {
-      return CONFIG;
+      return CONFIG.config;
     },
 
-    'An empty array replaced by a full array should be replaced': function() {
-        assert.deepEqual(CONFIG.arrayMerging.emptyArray, ['not empty anymore']);
+    'An empty array replaced by a full array should be replaced': function(config) {
+        assert.deepEqual(config.arrayMerging.emptyArray, ['not empty anymore']);
     },
 
-    'An array with one value should be replaced wholeshole': function() {
-        assert.deepEqual(CONFIG.arrayMerging.oneItem, ['replaced']);
+    'An array with one value should be replaced wholeshole': function(config) {
+        assert.deepEqual(config.arrayMerging.oneItem, ['replaced']);
     },
 
     "An array replaced by an empty array should be replaced wholesale" : function () {
-        assert.deepEqual(CONFIG.arrayMerging.removeMe, []);
+        assert.deepEqual(CONFIG.config.arrayMerging.removeMe, []);
     }
 
   }

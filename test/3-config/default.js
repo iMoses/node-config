@@ -1,7 +1,12 @@
 
-var defer = require('../../defer').deferConfig;
+var defer = require('../../lib/config').defer;
 
 var config = {
+  template: {
+    env: 'ENV::NODE_ENV',
+    file: 'File::Env::CUSTOM_ENVIRONMENT_VAR|secret',
+    // pwd: '::MyPassword|secret',
+  },
   value: 'value',
   siteTitle : 'Site title',
   latitude  : 1,

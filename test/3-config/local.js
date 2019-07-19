@@ -1,4 +1,4 @@
-var defer = require('../../defer').deferConfig;
+var defer = require('../../lib/config').defer;
 
 var config = {
  siteTitle : 'New Instance!',

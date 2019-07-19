@@ -29,25 +29,25 @@ var vows = require('vows'),
 vows.describe('Tests for async values - JavaScript').addBatch({
   'Configuration file Tests': {
     topic: function() {
-      resolveAsyncConfigs(CONFIG).then(function(config) {
+      CONFIG.whenReady.then(function(config) {
         this.callback(null, config);
       }.bind(this)).catch(function(err) {
         this.callback(err);
       }.bind(this));
     },
 
-    'Using asyncConfig() in a config file causes value to be evaluated by resolveAsyncConfigs': function() {
-      assert.equal(CONFIG.welcomeEmail.subject, 'Welcome to New Instance!');
+    'Using asyncConfig() in a config file causes value to be evaluated by whenReady': function() {
+      assert.equal(CONFIG.get('welcomeEmail.subject'), 'Welcome to New Instance!');
     },
 
     'values which are functions remain untouched unless they are instance of AsyncConfig': function() {
       // If this had been treated as a async config value it would blow-up.
-      assert.equal(CONFIG.welcomeEmail.aFunc(), 'Still just a function.');
+      assert.equal(CONFIG.config.welcomeEmail.aFunc(), 'Still just a function.');
     },
 
     // This async function didn't use args, but relied 'this' being bound to the main config object
     "async functions can simply refer to 'this'" : function () {
-      assert.equal(CONFIG.welcomeEmail.justThis, 'Welcome to this New Instance!');
+      assert.equal(CONFIG.config.welcomeEmail.justThis, 'Welcome to this New Instance!');
     },
 
     "async promises which return objects should still be treated as a single value." : function () {
@@ -55,15 +55,15 @@ vows.describe('Tests for async values - JavaScript').addBatch({
     },
 
     "async promise return original value." : function () {
-      assert.equal(CONFIG.original.original, 'an original value');
+      assert.equal(CONFIG.config.original.original, 'an original value');
     },
 
     "second async promise return local value." : function () {
-      assert.equal(CONFIG.original.originalPromise, 'not an original value');
+      assert.equal(CONFIG.config.original.originalPromise, 'not an original value');
     },
 
     "verify deferred functionality plays nicely with AsyncConfig." : function () {
-      assert.equal(CONFIG.promiseSubject, 'New Instance! Welcome to New Instance!');
+      assert.equal(CONFIG.config.promiseSubject, 'New Instance! Welcome to New Instance!');
     },
   }
 }).export(module);

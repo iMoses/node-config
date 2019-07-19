@@ -128,67 +128,6 @@ vows.describe('Protected (hackable) utilities test')
     }
   },
 
-  'extendDeep() tests': {
-    'The function exists': function() {
-      assert.isFunction(CONFIG.util.extendDeep);
-    },
-    'Performs normal extend': function() {
-      var orig = {elem1:"val1", elem2:"val2"};
-      var extWith = {elem3:"val3"};
-      var shouldBe = {elem1:"val1", elem2:"val2", elem3:"val3"};
-      assert.deepEqual(CONFIG.util.extendDeep(orig, extWith), shouldBe);
-    },
-    'Replaces non-objects': function() {
-      var orig = {elem1:"val1", elem2:["val2","val3"],elem3:{sub1:"val4"}};
-      var extWith = {elem1:1,elem2:["val4"],elem3:"val3"};
-      var shouldBe = {elem1:1, elem2:["val4"],elem3:"val3"};
-      assert.deepEqual(CONFIG.util.extendDeep(orig, extWith), shouldBe);
-    },
-    'Merges objects': function() {
-      var orig = {e1:"val1", elem2:{sub1:"val4",sub2:"val5"}};
-      var extWith = {elem2:{sub2:"val6",sub3:"val7"}};
-      var shouldBe = {e1:"val1", elem2:{sub1:"val4",sub2:"val6",sub3:"val7"}};
-      assert.deepEqual(CONFIG.util.extendDeep(orig, extWith), shouldBe);
-    },
-    'Merges dates': function() {
-      var orig = {e1:"val1", elem2:{sub1:"val4",sub2:new Date(2015, 0, 1)}};
-      var extWith = {elem2:{sub2:new Date(2015, 0, 2),sub3:"val7"}};
-      var shouldBe = {e1:"val1", elem2:{sub1:"val4",sub2:new Date(2015, 0, 2),sub3:"val7"}};
-      assert.deepEqual(CONFIG.util.extendDeep(orig, extWith), shouldBe);
-    },
-    'Creates partial objects when mixing objects and non-objects': function () {
-      var orig = {elem1: {sub1: 5}};
-      var ext1 = {elem1: {sub2: 7}};
-      var ext2 = {elem1: 7};
-      var ext3 = {elem1: {sub3: 13}};
-      // When we get to ext2, the 7 clears all memories of sub1 and sub3. Then, when
-      // we merge with ext3, the 7 is replaced by the new object.
-      var expected = {elem1: {sub3: 13}};
-      assert.deepEqual(CONFIG.util.extendDeep(orig, ext1, ext2, ext3), expected);
-    },
-    'Correctly types new objects and arrays': function() {
-      var orig = {e1:"val1", e3:["val5"]};
-      var extWith = {e2:{elem1:"val1"}, e3:["val6","val7"]};
-      var shouldBe = {e1:"val1", e2:{elem1:"val1"}, e3:["val6","val7"]};
-      var ext = CONFIG.util.extendDeep({}, orig, extWith);
-      assert.isObject(ext.e2);
-      assert.isArray(ext.e3);
-      assert.deepEqual(ext, shouldBe);
-    },
-    'Keeps non-merged objects intact': function() {
-      var orig     = {e1:"val1", elem2:{sub1:"val4",sub2:"val5"}};
-      var shouldBe = {e1:"val1", elem2:{sub1:"val4",sub2:"val5"}};
-      var extWith = {elem3:{sub2:"val6",sub3:"val7"}};
-      CONFIG.util.extendDeep({}, orig, extWith);
-      assert.deepEqual(orig, shouldBe);
-    },
-    'Keeps prototype methods intact': function() {
-      var orig = Object.create({has: function() {}});
-      var result = CONFIG.util.extendDeep({}, orig, {});
-      assert.isFunction(result.has);
-    }
-  },
-
   'equalsDeep() tests': {
     'The function exists': function() {
       assert.isFunction(CONFIG.util.equalsDeep);
@@ -219,11 +158,6 @@ vows.describe('Protected (hackable) utilities test')
       assert.isFalse(CONFIG.util.equalsDeep({}, null));
       assert.isFalse(CONFIG.util.equalsDeep(null, {}));
       assert.isFalse(CONFIG.util.equalsDeep(null, null));
-    },
-    'Fails if either object is undefined': function() {
-      var a = {};
-      assert.isFalse(CONFIG.util.equalsDeep({}));
-      assert.isFalse(CONFIG.util.equalsDeep(a['noElement'], {}));
     },
     'Fails if either object is undefined': function() {
       var a = {};

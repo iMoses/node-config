@@ -28,7 +28,7 @@ vows.describe('Tests for Unicode situations')
                 standardNoBomConfigFile = process.env.NODE_CONFIG_DIR + path.sep + 'defaultNoBOM.json';
 
             assert.doesNotThrow(function () {
-                result = CONFIG.util.parseFile(standardNoBomConfigFile);
+                result = CONFIG.parseFile(standardNoBomConfigFile);
             }, 'standard config file with no BOM has a parse error');
 
         },
@@ -38,7 +38,7 @@ vows.describe('Tests for Unicode situations')
                 configFileWithBom = process.env.NODE_CONFIG_DIR + path.sep + 'defaultWithUnicodeBOM.json';
 
             assert.doesNotThrow(function () {
-                result = CONFIG.util.parseFile(configFileWithBom);
+                result = CONFIG.parseFile(configFileWithBom);
             }, 'config file with BOM has a parse error');
 
         }

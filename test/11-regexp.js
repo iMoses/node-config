@@ -11,6 +11,8 @@ var CONFIG = requireUncached(__dirname + '/../lib/config');
 var assert = require('assert');
 var vows = require('vows');
 
+require('coffeescript').register();
+
 vows.describe('Tests for regexp').addBatch({
   'Regexp tests Tests': {
     topic: function() {
@@ -18,11 +20,11 @@ vows.describe('Tests for regexp').addBatch({
     },
 
     'A regexp should not be replaced': function() {
-      assert.deepEqual(CONFIG.SomeMore.regexp1, /This is a Regexp/g);
+      assert.deepEqual(CONFIG.get('SomeMore.regexp1'), /This is a Regexp/g);
     },
 
     'A regexp should be replaced': function() {
-      assert.deepEqual(CONFIG.SomeMore.regexp2, /This is the replaced/g);
+      assert.deepEqual(CONFIG.get('SomeMore.regexp2'), /This is the replaced/g);
     }
   }
 })

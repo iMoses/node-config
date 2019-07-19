@@ -1,331 +1,243 @@
-// External libraries are lazy-loaded only if these file types exist.
-var Yaml = null,
-    VisionmediaYaml = null,
-    Coffee = null,
-    Iced = null,
-    CSON = null,
-    PPARSER = null,
-    JSON5 = null,
-    TOML = null,
-    HJSON = null,
-    XML = null;
+const utils = require('./lib/utils');
+const FileSystem = require('fs');
 
-// Define soft dependencies so transpilers don't include everything
-var COFFEE_2_DEP = 'coffeescript',
-    COFFEE_DEP = 'coffee-script',
-    ICED_DEP = 'iced-coffee-script',
-    JS_YAML_DEP = 'js-yaml',
-    YAML_DEP = 'yaml',
-    JSON5_DEP = 'json5',
-    HJSON_DEP = 'hjson',
-    TOML_DEP = 'toml',
-    CSON_DEP = 'cson',
-    PPARSER_DEP = 'properties',
-    XML_DEP = 'x2js',
-    TS_DEP = 'ts-node';
-
-var Parser = module.exports;
-
-Parser.parse = function(filename, content) {
-  var parserName = filename.substr(filename.lastIndexOf('.') +1);  // file extension
-  if (typeof definitions[parserName] === 'function') {
-    return definitions[parserName](filename, content);
-  }
-  // TODO: decide what to do in case of a missing parser
+const lib = {
+  validators: {},
+  middleware: {},
 };
 
-Parser.xmlParser = function(filename, content) {
-  if (!XML) {
-    XML = require(XML_DEP);
-  }
-  var x2js = new XML();
-  var configObject = x2js.xml2js(content);
-  var rootKeys = Object.keys(configObject);
-  if(rootKeys.length === 1) {
-    return configObject[rootKeys[0]];
-  }
-  return configObject;
-};
+module.exports = Parser;
+module.exports.lib = lib;
 
-Parser.jsParser = function(filename, content) {
-  return require(filename);
-};
+/**
+ *
+ * @param options
+ * @constructor
+ * @property lib
+ * @property validators
+ * @property middleware
+ * @property definition
+ * @property resolution
+ */
+function Parser(options) {
+  const {
+    validators = [
+      lib.validators.gitCrypt(),
+    ],
+    middleware = [
+      lib.middleware.configTemplate({
+        env(value, options) {
+          return options.includes('json')
+            ? JSON.parse(process.env[value])
+            : process.env[value];
+        },
+        file(value, options) {
+          return options.includes('string')
+            ? this.readFile(value)
+            : this.parse(value);
+        },
+      }),
+    ],
+    definition = [
+      {ext: 'js', parser: lib.jsParser},
+      {ext: 'ts', parser: lib.jsParser},
+      {ext: 'json', parser: lib.jsonParser},
+      {ext: 'json5', parser: lib.jsonParser},
+      {ext: 'hjson', parser: lib.hjsonParser},
+      {ext: 'toml', parser: lib.tomlParser},
+      {ext: 'coffee', parser: lib.jsParser},
+      {ext: 'iced', parser: lib.jsParser},
+      {ext: 'yaml', parser: lib.yamlParser},
+      {ext: 'yml', parser: lib.yamlParser},
+      {ext: 'cson', parser: lib.csonParser},
+      {ext: 'properties', parser: lib.propertiesParser},
+      {ext: 'xml', parser: lib.xmlParser},
+      {ext: 'ini', parser: lib.iniParser},
+      {ext: 'd', parser: lib.dirParser},
+    ],
+  } = options || {};
 
-Parser.tsParser = function(filename, content) {
-  if (!require.extensions['.ts']) {
-    require(TS_DEP).register({
-      lazy: true,
-      compilerOptions: {
-        allowJs: true,
-      }
-    });
-  }
+  const isFunction = func => typeof func === 'function';
+  const isDefinitionSchema = def => typeof def.ext === 'string' && typeof def.parser === 'function';
 
-  // Imports config if it is exported via module.exports = ...
-  // See https://github.com/lorenwest/node-config/issues/524
-  var configObject = require(filename);
+  utils.attachPropertyValue(this, 'lib', Object.freeze(lib));
+  utils.enforceArrayProperty(this, 'validators', validators, isFunction);
+  utils.enforceArrayProperty(this, 'middleware', middleware,  isFunction);
+  utils.enforceArrayProperty(this, 'definition', definition, isDefinitionSchema);
+}
 
-  // Because of ES6 modules usage, `default` is treated as named export (like any other)
-  // Therefore config is a value of `default` key.
-  if (configObject.default) {
-    return configObject.default
-  }
-  return configObject;
-};
-
-Parser.coffeeParser = function(filename, content) {
-  // .coffee files can be loaded with either coffee-script or iced-coffee-script.
-  // Prefer iced-coffee-script, if it exists.
-  // Lazy load the appropriate extension
-  if (!Coffee) {
-    Coffee = {};
-
-    // The following enables iced-coffee-script on .coffee files, if iced-coffee-script is available.
-    // This is commented as per a decision on a pull request.
-    //try {
-    //  Coffee = require('iced-coffee-script');
-    //}
-    //catch (e) {
-    //  Coffee = require('coffee-script');
-    //}
-    try {
-      // Try to load coffeescript
-      Coffee = require(COFFEE_2_DEP);
+/**
+ * @name resolution
+ * @type {string[]}
+ */
+Object.defineProperty(Parser.prototype, 'resolution', {
+  get() { return this.definition.map(def => def.ext); },
+  set(value) {
+    if (!Array.isArray(value)) {
+      throw new Error(`Illegal set of resolution with a non-array argument`);
     }
-    catch (e) {
-      // If it doesn't exist, try to load it using the deprecated module name
-      Coffee = require(COFFEE_DEP);
+    const { definition, resolution } = this;
+    const unknown = value.filter(ext => !resolution.includes(ext));
+    if (unknown.length) {
+      throw new Error(`Invalid resolution value, unknown definitions ${unknown}`);
     }
-    // coffee-script >= 1.7.0 requires explicit registration for require() to work
-    if (Coffee.register) {
-      Coffee.register();
-    }
+    this.definition = value.map(ext => definition[resolution.indexOf(ext)]);
   }
-  // Use the built-in parser for .coffee files with coffee-script
-  return require(filename);
+});
+
+Parser.prototype.set = function(ext, parser) {
+  const index = this.resolution.indexOf(ext);
+  if (index === -1) this.definition.push({ext, parser});
+  else this.definition[index].parser = parser;
+  return this;
 };
 
-Parser.icedParser = function(filename, content) {
-  Iced = require(ICED_DEP);
-
-  // coffee-script >= 1.7.0 requires explicit registration for require() to work
-  if (Iced.register) {
-    Iced.register();
+Parser.prototype.unset = function(ext) {
+  const index = this.resolution.indexOf(ext);
+  if (index !== -1) {
+    this.definition.splice(index, 1);
+    return true;
   }
+  return false;
 };
 
-Parser.yamlParser = function(filename, content) {
-  if (!Yaml && !VisionmediaYaml) {
-    // Lazy loading
-    try {
-      // Try to load the better js-yaml module
-      Yaml = require(JS_YAML_DEP);
-    }
-    catch (e) {
-      try {
-        // If it doesn't exist, load the fallback visionmedia yaml module.
-        VisionmediaYaml = require(YAML_DEP);
-      }
-      catch (e) { }
-    }
-  }
-  if (Yaml) {
-    return Yaml.load(content);
-  }
-  else if (VisionmediaYaml) {
-    // The yaml library doesn't like strings that have newlines but don't
-    // end in a newline: https://github.com/visionmedia/js-yaml/issues/issue/13
-    content += '\n';
-    return VisionmediaYaml.eval(Parser.stripYamlComments(content));
-  }
-  else {
-    console.error('No YAML parser loaded.  Suggest adding js-yaml dependency to your package.json file.')
-  }
+Parser.prototype.reset = function() {
+  this.validators = [];
+  this.middleware = [];
+  this.definition = [];
+  return this;
 };
 
-Parser.jsonParser = function(filename, content) {
+/**
+ *
+ * @param filename
+ * @return {*}
+ */
+Parser.prototype.parse = function(filename) {
+  const ext = filename.substr(filename.lastIndexOf('.') +1);
+  const def = this.definition.find(d => d.ext.includes(ext));
+  if (def) return this.middleware.reduce((content, handler) =>
+    handler.call(this, filename, content), def.parser.call(this, filename));
+  throw Error(`No parser found for ${filename}`);
+};
+
+/**
+ *
+ * @param filename
+ * @return {*}
+ */
+Parser.prototype.readFile = function(filename) {
   try {
-    return JSON.parse(content);
+    const content = FileSystem
+      .readFileSync(filename, 'utf-8')
+      .replace(/^\uFEFF/, '');
+    const validate = handler =>
+      handler.call(this, filename, content);
+    return this.validators.every(validate) ? content : null;
   }
-  catch (e) {
-    // All JS Style comments will begin with /, so all JSON parse errors that
-    // encountered a syntax error will complain about this character.
-    if (e.name !== 'SyntaxError' || e.message.indexOf('Unexpected token /') !== 0) {
-      throw e;
-    }
-    if (!JSON5) {
-      JSON5 = require(JSON5_DEP);
-    }
-    return JSON5.parse(content);
+  catch(e) {
+    throw new Error(`Config file ${filename} cannot be read`);
   }
-};
-
-Parser.json5Parser = function(filename, content) {
-  if (!JSON5) {
-    JSON5 = require(JSON5_DEP);
-  }
-  return JSON5.parse(content);
-};
-
-Parser.hjsonParser = function(filename, content) {
-  if (!HJSON) {
-    HJSON = require(HJSON_DEP);
-  }
-  return HJSON.parse(content);
-};
-
-Parser.tomlParser = function(filename, content) {
-  if(!TOML) {
-    TOML = require(TOML_DEP);
-  }
-  return TOML.parse(content);
-};
-
-Parser.csonParser = function(filename, content) {
-  if (!CSON) {
-    CSON = require(CSON_DEP);
-  }
-  // Allow comments in CSON files
-  if (typeof CSON.parseSync === 'function') {
-    return CSON.parseSync(Parser.stripComments(content));
-  }
-  return CSON.parse(Parser.stripComments(content));
-};
-
-Parser.propertiesParser = function(filename, content) {
-  if (!PPARSER) {
-    PPARSER = require(PPARSER_DEP);
-  }
-  return PPARSER.parse(content, { namespaces: true, variables: true, sections: true });
 };
 
 /**
- * Strip all Javascript type comments from the string.
- *
- * The string is usually a file loaded from the O/S, containing
- * newlines and javascript type comments.
- *
- * Thanks to James Padolsey, and all who contributed to this implementation.
- * http://james.padolsey.com/javascript/javascript-comment-removal-revisted/
- *
- * @protected
- * @method stripComments
- * @param fileStr {string} The string to strip comments from
- * @param stringRegex {RegExp} Optional regular expression to match strings that
- *   make up the config file
- * @return {string} The string with comments stripped.
+ * Default Parsers
  */
-Parser.stripComments = function(fileStr, stringRegex) {
-  stringRegex = stringRegex || /(['"])(\\\1|.)+?\1/g;
 
-  var uid = '_' + +new Date(),
-    primitives = [],
-    primIndex = 0;
+lib.jsParser = function(filename) {
+  const content = require(filename);
+  return content.__esModule && content.default ? content.default : content;
+};
 
-  return (
-    fileStr
+lib.jsonParser = function(filename ) {
+  return require('json5').parse(this.readFile(filename));
+};
 
-    /* Remove strings */
-      .replace(stringRegex, function(match){
-        primitives[primIndex] = match;
-        return (uid + '') + primIndex++;
-      })
+lib.hjsonParser = function(filename) {
+  const content = this.readFile(filename);
+  return content ? require('hjson').parse(content) : null;
+};
 
-      /* Remove Regexes */
-      .replace(/([^\/])(\/(?!\*|\/)(\\\/|.)+?\/[gim]{0,3})/g, function(match, $1, $2){
-        primitives[primIndex] = $2;
-        return $1 + (uid + '') + primIndex++;
-      })
+lib.tomlParser = function(filename) {
+  const content = this.readFile(filename);
+  return content ? require('toml').parse(content) : null;
+};
 
-      /*
-      - Remove single-line comments that contain would-be multi-line delimiters
-          E.g. // Comment /* <--
-      - Remove multi-line comments that contain would be single-line delimiters
-          E.g. /* // <--
-     */
-      .replace(/\/\/.*?\/?\*.+?(?=\n|\r|$)|\/\*[\s\S]*?\/\/[\s\S]*?\*\//g, '')
+lib.csonParser = function(filename) {
+  const content = this.readFile(filename);
+  return content ? require('cson').parse(content) : null;
+};
 
-      /*
-      Remove single and multi-line comments,
-      no consideration of inner-contents
-     */
-      .replace(/\/\/.+?(?=\n|\r|$)|\/\*[\s\S]+?\*\//g, '')
+lib.iniParser = function(filename) {
+  const content = this.readFile(filename);
+  return content ? require('ini').parse(content) : null;
+};
 
-      /*
-      Remove multi-line comments that have a replaced ending (string/regex)
-      Greedy, so no inner strings/regexes will stop it.
-     */
-      .replace(RegExp('\\/\\*[\\s\\S]+' + uid + '\\d+', 'g'), '')
+lib.propertiesParser = function(filename) {
+  const content = this.readFile(filename);
+  const options = {namespaces: true, variables: true, sections: true};
+  return content ? require('properties').parse(content, options) : null;
+};
 
-      /* Bring back strings & regexes */
-      .replace(RegExp(uid + '(\\d+)', 'g'), function(match, n){
-        return primitives[n];
-      })
-  );
+lib.yamlParser = function(filename) {
+  const content = this.readFile(filename);
+  return content ? require('js-yaml').load(content) : null;
+};
 
+lib.xmlParser = function(filename) {
+  const x2js = new (require('x2js'));
+  let content = this.readFile(filename);
+  if (content) {
+    content = x2js.xml2js(content);
+    const rootKeys = Object.keys(content);
+    return rootKeys.length === 1 ? content[rootKeys[0]] : content;
+  }
+  return null;
+};
+
+lib.dirParser = dirname => {
+  console.log(`readdir ${dirname}`);
+  return null;
 };
 
 /**
- * Strip YAML comments from the string
- *
- * The 2.0 yaml parser doesn't allow comment-only or blank lines.  Strip them.
- *
- * @protected
- * @method stripYamlComments
- * @param fileStr {string} The string to strip comments from
- * @return {string} The string with comments stripped.
+ * Default Processors
  */
-Parser.stripYamlComments = function(fileStr) {
-  // First replace removes comment-only lines
-  // Second replace removes blank lines
-  return fileStr.replace(/^\s*#.*/mg,'').replace(/^\s*[\n|\r]+/mg,'');
-};
 
-var order = ['js', 'ts', 'json', 'json5', 'hjson', 'toml', 'coffee', 'iced', 'yaml', 'yml', 'cson', 'properties', 'xml'];
-var definitions = {
-  coffee: Parser.coffeeParser,
-  cson: Parser.csonParser,
-  hjson: Parser.hjsonParser,
-  iced: Parser.icedParser,
-  js: Parser.jsParser,
-  json: Parser.jsonParser,
-  json5: Parser.json5Parser,
-  properties: Parser.propertiesParser,
-  toml: Parser.tomlParser,
-  ts: Parser.tsParser,
-  xml: Parser.xmlParser,
-  yaml: Parser.yamlParser,
-  yml: Parser.yamlParser,
-};
-
-Parser.getParser = function(name) {
-  return definitions[name];
-};
-
-Parser.setParser = function(name, parser) {
-  definitions[name] = parser;
-  if (order.indexOf(name) === -1) {
-    order.push(name);
-  }
-};
-
-Parser.getFilesOrder = function(name) {
-  if (name) {
-    return order.indexOf(name);
-  }
-  return order;
-};
-
-Parser.setFilesOrder = function(name, newIndex) {
-  if (Array.isArray(name)) {
-    return order = name;
-  }
-  if (typeof newIndex === 'number') {
-    var index = order.indexOf(name);
-    order.splice(newIndex, 0, name);
-    if (index > -1) {
-      order.splice(index >= newIndex ? index +1 : index, 1);
+lib.validators.gitCrypt = strict => function(filename, content) {
+  if (/^.GITCRYPT/.test(content)) {
+    if (strict) {
+      throw new Error(`FATAL: skipping git-crypt file ${filename}`);
     }
+    console.warn(`WARNING: skipping git-crypt file ${filename}`);
+    return false;
   }
-  return order;
+  return true;
 };
+
+lib.middleware.configTemplate = handlers => function(filename, content) {
+  const isTemplate = val => regExp.test(val);
+  const commands = Object.keys(handlers).join('|');
+  const regExp = new RegExp(`^(${commands})::`, 'i');
+  utils.reduceObject(content, utils.collect.bind(content, isTemplate),[])
+    .forEach(([ origin, object, key ]) => {
+      let { commands, options, value } = destructValue(origin);
+      for (let command of commands) {
+        value = handlers[command].call(this, value, options);
+      }
+      const enumerable = !options.includes('secret');
+      Object.defineProperty(object, key, {value, enumerable});
+    });
+  return content;
+};
+
+function destructValue(value) {
+  const lower = s => s.toLowerCase();
+  let commands = value.split('::');
+  value = commands.pop();
+  let options = value.split('|');
+  value = options.shift();
+  options = options.map(lower);
+  commands = commands.map(lower).reverse();
+  return {commands, options, value};
+}
