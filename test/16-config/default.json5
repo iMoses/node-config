@@ -1,3 +1,6 @@
 {
   parser: "json5",
+  template: {
+    secret: "Env::CUSTOM_TEMPLATE_ENV_VAR|secret"
+  },
 }

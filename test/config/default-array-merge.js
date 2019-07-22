@@ -1,12 +1,7 @@
-
-var defer = require('../../defer').deferConfig;
-
-var config = {
+module.exports = {
   arrayMerging: {
     emptyArray : [],
     oneItem   : ['one'],
     removeMe  : ['some value'],
   },
 };
-
-module.exports = config;

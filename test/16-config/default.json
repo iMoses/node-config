@@ -1,7 +1,11 @@
 {
   "file": {
     "type": "json",
-    "name": "default"
+    "name": "default",
+    "path": "Env::CUSTOM_TEMPLATE_FILE_VAR",
+    "text": "FILE::Env::CUSTOM_TEMPLATE_FILE_VAR|string",
+    "json": "Env::CUSTOM_TEMPLATE_JSON_VAR|JSON",
+    "parsed": "FILE::Env::CUSTOM_TEMPLATE_FILE_VAR"
   },
   "parser": "json"
 }

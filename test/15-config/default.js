@@ -1,5 +1,4 @@
-
-var asyncConfig = require('../../async').asyncConfig;
+var asyncConfig = require('../../lib/config').asyncConfig;
 
 var config = {
   siteTitle : 'Site title',

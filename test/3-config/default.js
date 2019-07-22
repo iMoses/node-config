@@ -1,5 +1,4 @@
-
-var defer = require('../../defer').deferConfig;
+var defer = require('../../lib/config').deferConfig;
 
 var config = {
   value: 'value',
@@ -46,7 +45,10 @@ config.welcomeEmail = {
 };
 
 config.map = {
-  centerPoint : defer(function () {
+  point: defer(function () {
+    return { lat: this.latitude, lon: this.longitude };
+  }),
+  centerPoint: defer(function () {
     return { lat: this.latitude, lon: this.longitude };
   }),
 };

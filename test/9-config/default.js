@@ -1,18 +1,16 @@
-var raw = require('../../raw').raw;
-
 module.exports = {
-  circularReference: raw(process.stdout),
-  testObj: raw({ foo: 'bar' }),
-  yell: raw(function(input) {
+  circularReference: process.stdout,
+  testObj: { foo: 'bar' },
+  yell: function(input) {
     return input + '!';
-  }),
+  },
   aPromise: Promise.resolve('this is a promise result'),
   innerRaw: {
-    innerCircularReference: raw(process.stdout)
+    innerCircularReference: process.stdout
   },
-  nestedRaw: raw({
+  nestedRaw: {
     nested: {
       test: process.stdout
     }
-  })
-}
+  }
+};

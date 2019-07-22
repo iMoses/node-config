@@ -1,0 +1,2 @@
+template:
+  secret: override_no_longer_secret

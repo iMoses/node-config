@@ -1,5 +1,5 @@
+import { deferConfig as defer } from '../../lib/defer';
 import { Config } from './types';
-import { deferConfig as defer } from '../../defer';
 
 const localConfig: Config = {
  siteTitle : 'New Instance!',
