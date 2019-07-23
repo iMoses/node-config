@@ -34,26 +34,26 @@ vows.describe(`TypeScript configurations`)
         appInstance: 'defer',
         environment: 'test',
       }),
-      'Validate deferConfig values are resolved on access': function(config) {
+      'deferConfig values are resolved on access': function(config) {
         // The deferred function was declared in default.js
         // Then local.js is located which overloads the siteTitle mentioned in the function
         // Finally the deferred configurations, now referencing the 'local' siteTitle
         assert.strictEqual(config.get('welcomeEmail.subject'), 'Welcome to New Instance!');
       },
-      'Ensure native-function values remain untouched': function(config) {
+      'native-function values remain untouched': function(config) {
         assert.isFunction(config.get('welcomeEmail.aFunc'));
         assert.strictEqual(config.config.welcomeEmail.aFunc(), 'Still just a function.');
       },
-      'Ensure deferred functions can be replaced': function(config) {
+      'deferred functions can be replaced': function(config) {
         assert.deepEqual(config.get('map.centerPoint'), {lat: 3, lon: 4});
       },
-      'Ensure deferred functions context is set to the configuration object' : function(config) {
+      'deferred functions context is set to the configuration object' : function(config) {
         assert.strictEqual(config.get('welcomeEmail.justThis'), 'Welcome to this New Instance!');
       },
-      'Ensure returned objects from deferred functions are treated as objects': function(config) {
+      'returned objects from deferred functions are treated as objects': function(config) {
         assert.deepEqual(config.get('map.centerPoint.lon'), 4);
       },
-      'Ensure deferred functions can access their original value' : function(config) {
+      'deferred functions can access their original value' : function(config) {
         assert.strictEqual(config.get('original.original'), 'an original value');
         assert.strictEqual(config.get('original.deferredOriginal'), undefined);
       },

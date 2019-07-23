@@ -70,13 +70,13 @@ vows.describe(`Configuration utilities`)
       }, function() {
         assert.strictEqual(utils.getOption('NODE_CONFIG_DIR'), '/path/to/config');
       }),
-      'returns default valie when no cli-arg or env-var were matched': processScope({
+      'returns default value when no cli-arg or env-var were matched': processScope({
         env: {},
         argv: [],
       }, function() {
         assert.strictEqual(utils.getOption('NON_EXISTING','myDefaultValue'), 'myDefaultValue');
       }),
-      'does not returns default valie when a cli-arg or env-var were matched but returned a falsly value': processScope({
+      'does not returns default value when a cli-arg or env-var were matched but returned a falsly value': processScope({
         env: {
           NUMBER_VALUE: '0',
           BOOL_VALUE: false,
@@ -114,8 +114,6 @@ vows.describe(`Configuration utilities`)
         }
       },
     },
-  })
-  .addBatch({
     'utils.isPromise()': {
       'identifies promises correctly': function() {
         const values = [
@@ -137,8 +135,6 @@ vows.describe(`Configuration utilities`)
         }
       },
     },
-  })
-  .addBatch({
     'utils.makePath()': {
       topic: () => ({
         TestModule: {
@@ -188,8 +184,6 @@ vows.describe(`Configuration utilities`)
         assert.deepEqual(object.TestModule.list1, list);
       },
     },
-  })
-  .addBatch({
     'utils.collect()': {
       topic: () => ({
         a1: {
@@ -228,8 +222,6 @@ vows.describe(`Configuration utilities`)
         }
       },
     },
-  })
-  .addBatch({
     'utils.cloneDeep()': {
       topic() {
         const object = {
@@ -268,8 +260,6 @@ vows.describe(`Configuration utilities`)
         assert.strictEqual(clone.number, object.number);
       },
     },
-  })
-  .addBatch({
     'utils.extendDeep()': {
       'plain objects are merged': function() {
         const origin = {elem3: 'val3'};
@@ -319,8 +309,6 @@ vows.describe(`Configuration utilities`)
         assert.strictEqual(origin.status, -origin.get());
       },
     },
-  })
-  .addBatch({
     'utils.deepFreeze()': {
       topic: () => utils.deepFreeze({
         string: 'string',
@@ -363,8 +351,6 @@ vows.describe(`Configuration utilities`)
         assert.isFalse(Object.isFrozen(frozen.complex));
       },
     },
-  })
-  .addBatch({
     'utils.reduceObject()': {
       'objects are reduced correctly': function() {
         const object = {a1: 2, a2: 7, b1: -4, c1: 0};
@@ -383,8 +369,6 @@ vows.describe(`Configuration utilities`)
         assert.deepEqual(result, [object, object, object, object]);
       },
     },
-  })
-  .addBatch({
     'utils.collectFiles()': {
       'allowed files are collected in resolution order': function() {
         assert.deepEqual(
@@ -430,8 +414,6 @@ vows.describe(`Configuration utilities`)
           ]), []);
       },
     },
-  })
-  .addBatch({
     'utils.attachLazyProperty()': {
       'property is set and initialized on first access': function() {
         const object = {};
@@ -485,8 +467,6 @@ vows.describe(`Configuration utilities`)
         assert.strictEqual(object.config, config);
       },
     },
-  })
-  .addBatch({
     'utils.attachPropertyValue()': {
       'property is set': function() {
         const object = {key: null};
@@ -512,8 +492,6 @@ vows.describe(`Configuration utilities`)
         assert.strictEqual(object.key, 'myValue');
       },
     },
-  })
-  .addBatch({
     'utils.attachPropertyGetter()': {
       'property is set': function() {
         let value = 'myValue';
@@ -549,8 +527,6 @@ vows.describe(`Configuration utilities`)
         assert.strictEqual(object.key, 'myValue');
       },
     },
-  })
-  .addBatch({
     'utils.enforceArrayProperty()': {
       'property is set': function() {
         const object = {};

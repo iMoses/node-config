@@ -10,7 +10,7 @@ vows.describe(`Config resolution`)
   .addBatch({
     'Configuration files resolution': {
       topic() {
-        return config
+        return config.create()
           .loadFiles({
             configDir: __dirname + '/config',
             environment: 'test',
@@ -20,68 +20,68 @@ vows.describe(`Config resolution`)
           .extend({EnvOverride: {parm5: 'overridden from --NODE_CONFIG', parm6: 101}}, '--NODE_CONFIG')
           .parseFile(__dirname + '/config/runtime.json');
       },
-      'Parsing configurations from a ".js" module': function(config) {
+      'parsing configurations from a ".js" module': function(config) {
         assert.strictEqual(config.get('Customers.dbHost'), 'base');
         assert.strictEqual(config.get('TestModule.parm1'), 'value1');
       },
-      'Parsing configurations from a ".json" file': function(config) {
+      'parsing configurations from a ".json" file': function(config) {
         assert.strictEqual(config.get('Inline.a'), '');
         assert.strictEqual(config.get('Inline.b'), '1');
         assert.strictEqual(config.get('AnotherModule.parm1'), 'value1');
         assert.strictEqual(config.get('ContainsQuote'), '"this has a quote"');
       },
-      'Parsing configurations from a ".json5" file': function(config) {
+      'parsing configurations from a ".json5" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm6'), 'value6');
       },
-      'Parsing configurations from a ".yaml" file': function(config) {
+      'parsing configurations from a ".yaml" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm2'), 'value2');
       },
-      'Parsing configurations from a ".yml" file': function(config) {
+      'parsing configurations from a ".yml" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm2yml'), 'value2yml');
       },
-      'Parsing configurations from a ".coffee" file': function(config) {
+      'parsing configurations from a ".coffee" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm3'), 'value3');
       },
-      'Parsing configurations from a ".cson" file': function(config) {
+      'parsing configurations from a ".cson" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm4'), 'value4');
       },
-      'Parsing configurations from a ".properties" file': function(config) {
+      'parsing configurations from a ".properties" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm5'), 'value5');
       },
-      'Parsing configurations from a ".toml" file': function(config) {
+      'parsing configurations from a ".toml" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm7'), 'value7');
       },
-      'Parsing configurations from a ".hjson" file': function(config) {
+      'parsing configurations from a ".hjson" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm8'), 'value8');
       },
-      'Parsing configurations from a ".xml" file': function(config) {
+      'parsing configurations from a ".xml" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm9'), 'value9');
       },
-      'Parsing configurations from the "{default-instance}" file': function(config) {
+      'parsing configurations from the "{default-instance}" file': function(config) {
         assert.strictEqual(config.get('Customers.altDbPort'), 4400);
       },
-      'Parsing configurations from the "{environment}" file': function(config) {
+      'parsing configurations from the "{environment}" file': function(config) {
         assert.strictEqual(config.get('Customers.dbPort'), 5999);
       },
-      'Parsing configurations from the "{local}" file': function(config) {
+      'parsing configurations from the "{local}" file': function(config) {
         assert.strictEqual(config.get('Customers.dbPassword'), 'real password');
       },
-      'Parsing configurations from the "{local-environment}" file': function(config) {
+      'parsing configurations from the "{local-environment}" file': function(config) {
         assert.deepEqual(config.get('Customers.lang'), ['en','de','es']);
         assert.strictEqual(config.get('Customers.dbPassword2'), 'another password');
       },
-      'Parsing configurations from the "{local-instance}" file': function(config) {
+      'parsing configurations from the "{local-instance}" file': function(config) {
         assert.deepEqual(config.get('Customers.altDbPort1'), '2209');
       },
-      'Parsing configurations from the $NODE_CONFIG environment variable': function(config) {
+      'parsing configurations from the $NODE_CONFIG environment variable': function(config) {
         assert.strictEqual(config.get('EnvOverride.parm3'), 'overridden from $NODE_CONFIG');
         assert.strictEqual(config.get('EnvOverride.parm4'), 100);
       },
-      'Parsing configurations from the --NODE_CONFIG command-line argument': function(config) {
+      'parsing configurations from the --NODE_CONFIG command-line argument': function(config) {
         assert.strictEqual(config.get('EnvOverride.parm5'), 'overridden from --NODE_CONFIG');
         assert.strictEqual(config.get('EnvOverride.parm6'), 101);
       },
-      'Parsing configurations from the "runtime.json" file': function(config) {
+      'parsing configurations from the "runtime.json" file': function(config) {
         assert.strictEqual(config.get('Customers.dbName'), 'override_from_runtime_json');
       },
     },
@@ -92,13 +92,13 @@ vows.describe(`Config resolution`)
         configDir: `${__dirname}/14-config`,
         environment: 'development,cloud',
       }),
-      'Ensure all corresponding sources are loaded': function(config) {
+      'all corresponding sources are loaded': function(config) {
         void config.config;  // access config to autoload
         assert.deepEqual(config.sources.map(({ source }) => source), [
           'development.json', 'cloud.json', 'local-development.json', 'local-cloud.json'
         ].map(filename => `${__dirname}/14-config/${filename}`));
       },
-      'Ensure values of corresponding file are loaded': function(config) {
+      'values of corresponding file are loaded': function(config) {
         assert.strictEqual(config.get('db.name'), 'development-config-env-provided');
         assert.strictEqual(config.get('db.port'), 3000);
         assert.strictEqual(config.get('app.context'), 'local cloud');
@@ -111,13 +111,13 @@ vows.describe(`Config resolution`)
         environment: 'development,bare-metal',
         hostname: 'test',
       }),
-      'Ensure all corresponding sources are loaded': function(config) {
+      'all corresponding sources are loaded': function(config) {
         void config.config;  // access config to autoload
         assert.deepEqual(config.sources.map(({ source }) => source), [
           'development.json', 'bare-metal.json', 'test-development.json', 'test-bare-metal.json', 'local-development.json'
         ].map(filename => `${__dirname}/14-config/${filename}`));
       },
-      'Ensure values of corresponding file are loaded': function(config) {
+      'values of corresponding file are loaded': function(config) {
         assert.strictEqual(config.get('host.os'), 'linux');
         assert.strictEqual(config.get('host.arch'), 'x86_64');
       },
@@ -127,13 +127,13 @@ vows.describe(`Config resolution`)
         configDir: `${__dirname}/14-config`,
         environment: 'cloud,bare-metal',
       }),
-      'Ensure all corresponding sources are loaded': function(config) {
+      'all corresponding sources are loaded': function(config) {
         void config.config;  // access config to autoload
         assert.deepEqual(config.sources.map(({ source }) => source), [
           'cloud.json', 'bare-metal.json', 'local-cloud.json'
         ].map(filename => `${__dirname}/14-config/${filename}`));
       },
-      'Ensure files resolution order corresponds with the environment value': function(config){
+      'files resolution order corresponds with the environment value': function(config){
         assert.strictEqual(config.get('db.name'), 'bare-metal-config-env-provided');
       },
     },
@@ -145,13 +145,13 @@ vows.describe(`Config resolution`)
         environment: 'test',
         appInstance: '3',
       }),
-      'Validate first directory loaded': function(config) {
+      'first directory loaded': function(config) {
         assert.strictEqual(config.get('Customers.dbName'), 'from_default_xml');
       },
-      'Validate second directory loaded': function(config) {
+      'second directory loaded': function(config) {
         assert.strictEqual(config.get('different.dir'), true);
       },
-      'Validate correct resolution order': function(config) {
+      'resolution order is correct': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm4'), 'x_config_4_win');
       },
     },
@@ -163,20 +163,20 @@ vows.describe(`Config resolution`)
         appInstance: 'array-merge',
         environment: 'test',
       }),
-      'Ensure an empty array is replaced by a full array': function(config) {
+      'an empty array is replaced by a full array': function(config) {
         assert.deepEqual(config.get('arrayMerging.emptyArray'), ['not empty anymore']);
       },
-      'Ensure an array can be replaced by an empty array' : function(config) {
+      'an array can be replaced by an empty array' : function(config) {
         assert.deepEqual(config.get('arrayMerging.removeMe'), []);
       },
-      'Ensure an array with one value can be replaced': function(config) {
+      'an array with one value can be replaced': function(config) {
         assert.deepEqual(config.get('arrayMerging.oneItem'), ['replaced']);
       },
     },
   })
   .addBatch({
     // replaces raw values which is obsolete in new architecture
-    'Complex values (previously raw)': {
+    'Complex values': {
       topic() {
         const localConfig = config.create({
           configDir: __dirname + '/9-config',
@@ -188,19 +188,19 @@ vows.describe(`Config resolution`)
           err => this.callback(err)
         );
       },
-      'Ensure promises are unmodified': function(err, { promiseValue }) {
+      'promises are unmodified': function(err, { promiseValue }) {
         assert.strictEqual(promiseValue, 'this is a promise result');
       },
-      'Ensure complex objects are unmodified': function({ config }) {
+      'complex objects are unmodified': function({ config }) {
         assert.strictEqual(config.get('circularReference'), process.stdout);
         assert.deepEqual(config.get('testObj'), {foo: 'bar'});
         assert.isFunction(config.get('yell'));
       },
-      'Ensure nested complex objects are unmodified': function({ config }) {
+      'nested complex objects are unmodified': function({ config }) {
         assert.strictEqual(config.get('innerRaw').innerCircularReference, process.stdout);
         assert.strictEqual(config.get('innerRaw.innerCircularReference'), process.stdout);
       },
-      'Supports multiple levels of nesting': function({ config }) {
+      'supports multiple levels of nesting': function({ config }) {
         assert.strictEqual(config.get('nestedRaw').nested.test, process.stdout);
         assert.strictEqual(config.get('nestedRaw.nested').test, process.stdout);
         assert.strictEqual(config.get('nestedRaw.nested.test'), process.stdout);
@@ -214,10 +214,10 @@ vows.describe(`Config resolution`)
         appInstance: 'regexp',
         environment: 'test',
       }),
-      'Ensure regExp values are preserved': function(config) {
+      'regExp values are preserved': function(config) {
         assert.deepEqual(config.get('SomeMore.regexp1'), /This is a Regexp/g);
       },
-      'Ensure regExp values are replaced': function(config) {
+      'regExp values are replaced': function(config) {
         assert.deepEqual(config.get('SomeMore.regexp2'), /This is the replaced/g);
       },
     },
