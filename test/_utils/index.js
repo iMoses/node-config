@@ -20,8 +20,9 @@ module.exports.processScope = function(options, handler) {
     if (options.env) {
       process.env = options.env;
     }
-    handler.apply(this, arguments);
+    const res = handler.apply(this, arguments);
     process.argv = argv;
     process.env = env;
+    return res;
   };
 };

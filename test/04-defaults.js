@@ -303,7 +303,7 @@ vows.describe(`Config instance defaults`)
     },
   })
   .addBatch({
-    'Validate strictness': {
+    'Validates strictness': {
       'an unused environment value and valid NODE_APP_INSTANCE value throws an exception': cleanConfig({
         env: {
           NODE_ENV: 'BOOM',

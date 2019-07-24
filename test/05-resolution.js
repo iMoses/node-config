@@ -1,4 +1,4 @@
-const { requireUncached } = require('./_utils');
+const { requireUncached, processScope } = require('./_utils');
 const config = requireUncached(__dirname + '/../lib/config');
 const assert = require('assert');
 const path = require('path');
@@ -9,17 +9,21 @@ require('coffeescript').register();
 vows.describe(`Config resolution`)
   .addBatch({
     'Configuration files resolution': {
-      topic() {
-        return config.create()
-          .loadFiles({
-            configDir: __dirname + '/config',
-            environment: 'test',
-            appInstance: '3',
-          })
-          .extend({EnvOverride: {parm3: 'overridden from $NODE_CONFIG', parm4: 100}}, '$NODE_CONFIG')
-          .extend({EnvOverride: {parm5: 'overridden from --NODE_CONFIG', parm6: 101}}, '--NODE_CONFIG')
-          .parseFile(__dirname + '/config/runtime.json');
-      },
+      topic: processScope({
+        env: {
+          NODE_CONFIG_DIR: __dirname + '/config',
+          NODE_CONFIG_ENV: 'test',
+          NODE_APP_INSTANCE: '3',
+          NODE_CONFIG: JSON.stringify({EnvOverride: {parm3: 'overridden from $NODE_CONFIG', parm4: 100}}),
+        },
+        argv: [
+          '--NODE_CONFIG',
+          JSON.stringify({EnvOverride: {parm5: 'overridden from --NODE_CONFIG', parm6: 101}}),
+        ],
+      }, () => {
+        const config = requireUncached(__dirname + '/../lib/config');
+        return config.executeAutoload().parseFile(__dirname + '/config/runtime.json');
+      }),
       'parsing configurations from a ".js" module': function(config) {
         assert.strictEqual(config.get('Customers.dbHost'), 'base');
         assert.strictEqual(config.get('TestModule.parm1'), 'value1');
@@ -191,16 +195,16 @@ vows.describe(`Config resolution`)
       'promises are unmodified': function(err, { promiseValue }) {
         assert.strictEqual(promiseValue, 'this is a promise result');
       },
-      'complex objects are unmodified': function({ config }) {
+      'complex objects are unmodified': function(err, { config }) {
         assert.strictEqual(config.get('circularReference'), process.stdout);
         assert.deepEqual(config.get('testObj'), {foo: 'bar'});
         assert.isFunction(config.get('yell'));
       },
-      'nested complex objects are unmodified': function({ config }) {
+      'nested complex objects are unmodified': function(err, { config }) {
         assert.strictEqual(config.get('innerRaw').innerCircularReference, process.stdout);
         assert.strictEqual(config.get('innerRaw.innerCircularReference'), process.stdout);
       },
-      'supports multiple levels of nesting': function({ config }) {
+      'supports multiple levels of nesting': function(err, { config }) {
         assert.strictEqual(config.get('nestedRaw').nested.test, process.stdout);
         assert.strictEqual(config.get('nestedRaw.nested').test, process.stdout);
         assert.strictEqual(config.get('nestedRaw.nested.test'), process.stdout);

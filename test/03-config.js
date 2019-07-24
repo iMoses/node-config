@@ -61,8 +61,7 @@ vows.describe(`Configuration methods`)
         assert.strictEqual(config.get('EnvOverride.parm4'), 100);
       },
       'throws when used after the configuration object freeze': function() {
-        const local = config.create();
-        local.extend({key: 'value'});
+        const local = config.create().extend({key: 'value'});
         assert.strictEqual(local.get('key'), 'value');
         assert.throws(() => local.extend({key: 'newValue'}),
           /Configuration object is immutable and cannot be changed/);
@@ -82,8 +81,7 @@ vows.describe(`Configuration methods`)
         assert.strictEqual(config.get('Customers.dbName'), 'from_default_json');
       },
       'throws when used after the configuration object freeze': function() {
-        const local = config.create();
-        local.parseFile(__dirname + '/7-config/defaultNoBOM.json');
+        const local = config.create().parseFile(__dirname + '/7-config/defaultNoBOM.json');
         assert.strictEqual(local.get('siteTitle'), 'A valid site title from default.json');
         assert.throws(() => local.parseFile(__dirname + '/7-config/defaultNoBOM.json'),
           /Configuration object is immutable and cannot be changed/);
@@ -94,12 +92,12 @@ vows.describe(`Configuration methods`)
   .addBatch({
     'config.loadFiles()': {
       topic() {
-        return config.create()
-          .loadFiles({
-            configDir: __dirname + '/config',
-            environment: 'test',
-            appInstance: '3',
-          })
+        return config.create({
+          configDir: __dirname + '/config',
+          environment: 'test',
+          appInstance: '3',
+        })
+          .executeAutoload()
           .parseFile(__dirname + '/config/runtime.json');
       },
       'parsing configurations from the {environment} file': function(config) {
@@ -122,8 +120,7 @@ vows.describe(`Configuration methods`)
         assert.strictEqual(config.get('Customers.dbName'), 'override_from_runtime_json');
       },
       'throws when used after the configuration object freeze': function() {
-        const local = config.create();
-        local.loadFiles({configDir: __dirname + '/config'});
+        const local = config.create().loadFiles({configDir: __dirname + '/config'});
         assert.strictEqual(local.get('Customers.dbName'), 'from_default_xml');
         assert.throws(() => local.loadFiles({configDir: __dirname + '/7-config'}),
           /Configuration object is immutable and cannot be changed/);
