@@ -97,7 +97,7 @@ vows.describe(`Configuration methods`)
           environment: 'test',
           appInstance: '3',
         })
-          .executeAutoload()
+          .loadDefaults(true)
           .parseFile(__dirname + '/config/runtime.json');
       },
       'parsing configurations from the {environment} file': function(config) {

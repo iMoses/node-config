@@ -22,7 +22,7 @@ vows.describe(`Config resolution`)
         ],
       }, () => {
         const config = requireUncached(__dirname + '/../lib/config');
-        return config.executeAutoload().parseFile(__dirname + '/config/runtime.json');
+        return config.loadDefaults(true).parseFile(__dirname + '/config/runtime.json');
       }),
       'parsing configurations from a ".js" module': function(config) {
         assert.strictEqual(config.get('Customers.dbHost'), 'base');
