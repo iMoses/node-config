@@ -369,51 +369,6 @@ vows.describe(`Configuration utilities`)
         assert.deepEqual(result, [object, object, object, object]);
       },
     },
-    'utils.collectFiles()': {
-      'allowed files are collected in resolution order': function() {
-        assert.deepEqual(
-          utils.collectFiles(__dirname + '/config', [
-            'default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
-            'default.js', 'default-3.coffee', 'default-3.json', 'default-3.json5', 'default-3.toml',
-            'default-3.yaml', 'default-3.js', 'test.coffee', 'test.json', 'test.json5',
-            'test.toml', 'test.yaml', 'test.js', 'test-3.coffee', 'test-3.json',
-            'test-3.json5', 'test-3.toml', 'test-3.yaml', 'test-3.js', 'local.coffee',
-            'local.json', 'local.json5', 'local.toml', 'local.yaml', 'local.js',
-            'local-3.coffee', 'local-3.json', 'local-3.json5', 'local-3.toml', 'local-3.yaml',
-            'local-3.js',
-          ]),
-          ['default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
-            'default.js', 'default-3.json', 'test.yaml', 'local.yaml'
-          ].map(filename => `${__dirname}/config/${filename}`)
-        );
-      },
-      'returns an empty array when no files were matched': function() {
-        assert.deepEqual(
-          utils.collectFiles(__dirname, [
-            'default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
-            'default.js', 'default-3.coffee', 'default-3.json', 'default-3.json5', 'default-3.toml',
-            'default-3.yaml', 'default-3.js', 'test.coffee', 'test.json', 'test.json5',
-            'test.toml', 'test.yaml', 'test.js', 'test-3.coffee', 'test-3.json',
-            'test-3.json5', 'test-3.toml', 'test-3.yaml', 'test-3.js', 'local.coffee',
-            'local.json', 'local.json5', 'local.toml', 'local.yaml', 'local.js',
-            'local-3.coffee', 'local-3.json', 'local-3.json5', 'local-3.toml', 'local-3.yaml',
-            'local-3.js',
-          ]), []);
-      },
-      'returns an empty array when directory is missing': function() {
-        assert.deepEqual(
-          utils.collectFiles(__dirname + '/no-config', [
-            'default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
-            'default.js', 'default-3.coffee', 'default-3.json', 'default-3.json5', 'default-3.toml',
-            'default-3.yaml', 'default-3.js', 'test.coffee', 'test.json', 'test.json5',
-            'test.toml', 'test.yaml', 'test.js', 'test-3.coffee', 'test-3.json',
-            'test-3.json5', 'test-3.toml', 'test-3.yaml', 'test-3.js', 'local.coffee',
-            'local.json', 'local.json5', 'local.toml', 'local.yaml', 'local.js',
-            'local-3.coffee', 'local-3.json', 'local-3.json5', 'local-3.toml', 'local-3.yaml',
-            'local-3.js',
-          ]), []);
-      },
-    },
     'utils.attachLazyProperty()': {
       'property is set and initialized on first access': function() {
         const object = {};

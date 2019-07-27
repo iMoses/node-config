@@ -53,7 +53,7 @@ vows.describe(`Configuration Parser instance`)
     'parser.definition': {
       topic: () => new Parser,
       'is set with defaults': function(parser) {
-        assert.strictEqual(parser.definition.length, 13);
+        assert.strictEqual(parser.definition.length, 15);
         assert.isTrue(parser.definition.every(def =>
           typeof def.ext === 'string' && typeof def.parser === 'function'));
       },
@@ -69,7 +69,7 @@ vows.describe(`Configuration Parser instance`)
     'parser.resolution': {
       topic: () => new Parser,
       'property is set correctly': function(parser) {
-        assert.strictEqual(parser.resolution.length, 13);
+        assert.strictEqual(parser.resolution.length, 15);
         assert.isTrue(parser.definition.every(
           (def, index) => def.ext === parser.resolution[index]));
       },
@@ -131,6 +131,52 @@ vows.describe(`Configuration Parser instance`)
         assert.equal(parser.readFile(__dirname + '/config/default.json5'), null);
       },
     },
+    'parser.collectFiles()': {
+      topic: () => new Parser,
+      'allowed files are collected in resolution order': function(parser) {
+        assert.deepEqual(
+          parser.collectFiles(__dirname + '/config', [
+            'default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
+            'default.js', 'default-3.coffee', 'default-3.json', 'default-3.json5', 'default-3.toml',
+            'default-3.yaml', 'default-3.js', 'test.coffee', 'test.json', 'test.json5',
+            'test.toml', 'test.yaml', 'test.js', 'test-3.coffee', 'test-3.json',
+            'test-3.json5', 'test-3.toml', 'test-3.yaml', 'test-3.js', 'local.coffee',
+            'local.json', 'local.json5', 'local.toml', 'local.yaml', 'local.js',
+            'local-3.coffee', 'local-3.json', 'local-3.json5', 'local-3.toml', 'local-3.yaml',
+            'local-3.js',
+          ]),
+          ['default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
+            'default.js', 'default-3.json', 'test.yaml', 'local.yaml'
+          ].map(filename => `${__dirname}/config/${filename}`)
+        );
+      },
+      'returns an empty array when no files were matched': function(parser) {
+        assert.deepEqual(
+          parser.collectFiles(__dirname, [
+            'default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
+            'default.js', 'default-3.coffee', 'default-3.json', 'default-3.json5', 'default-3.toml',
+            'default-3.yaml', 'default-3.js', 'test.coffee', 'test.json', 'test.json5',
+            'test.toml', 'test.yaml', 'test.js', 'test-3.coffee', 'test-3.json',
+            'test-3.json5', 'test-3.toml', 'test-3.yaml', 'test-3.js', 'local.coffee',
+            'local.json', 'local.json5', 'local.toml', 'local.yaml', 'local.js',
+            'local-3.coffee', 'local-3.json', 'local-3.json5', 'local-3.toml', 'local-3.yaml',
+            'local-3.js',
+          ]), []);
+      },
+      'returns an empty array when directory is missing': function(parser) {
+        assert.deepEqual(
+          parser.collectFiles(__dirname + '/no-config', [
+            'default.coffee', 'default.json', 'default.json5', 'default.toml', 'default.yaml',
+            'default.js', 'default-3.coffee', 'default-3.json', 'default-3.json5', 'default-3.toml',
+            'default-3.yaml', 'default-3.js', 'test.coffee', 'test.json', 'test.json5',
+            'test.toml', 'test.yaml', 'test.js', 'test-3.coffee', 'test-3.json',
+            'test-3.json5', 'test-3.toml', 'test-3.yaml', 'test-3.js', 'local.coffee',
+            'local.json', 'local.json5', 'local.toml', 'local.yaml', 'local.js',
+            'local-3.coffee', 'local-3.json', 'local-3.json5', 'local-3.toml', 'local-3.yaml',
+            'local-3.js',
+          ]), []);
+      },
+    },
   })
   .addBatch({
     'parser.set()': {
@@ -163,12 +209,12 @@ vows.describe(`Configuration Parser instance`)
       topic: () => new Parser,
       'returns true when a definition is removed': function(parser) {
         const index = parser.resolution.indexOf('yaml');
-        assert.strictEqual(parser.definition.length, 13);
+        assert.strictEqual(parser.definition.length, 15);
         assert.strictEqual(parser.definition[index].ext, 'yaml');
         assert.isFunction(parser.definition[index].parser);
         assert.notStrictEqual(index, -1);
         assert.isTrue(parser.unset('yaml'));
-        assert.strictEqual(parser.definition.length, 12);
+        assert.strictEqual(parser.definition.length, 14);
         assert.strictEqual(parser.resolution.indexOf('yaml'), -1);
         assert.throws(() => parser.parse('/some/path/to/file.yaml'), /No parser found for/);
       },
@@ -178,7 +224,7 @@ vows.describe(`Configuration Parser instance`)
       },
       'extension parser definition and resolution are removed': function(parser) {
         assert.strictEqual(parser.resolution.indexOf('yaml'), -1);
-        assert.strictEqual(parser.definition.length, 12);
+        assert.strictEqual(parser.definition.length, 14);
         assert.isFalse(parser.unset('yaml'));
       },
     },
@@ -187,8 +233,8 @@ vows.describe(`Configuration Parser instance`)
       'mutable properties are set to default': function(parser) {
         assert.strictEqual(parser.validators.length, 1);
         assert.strictEqual(parser.middleware.length, 1);
-        assert.strictEqual(parser.definition.length, 13);
-        assert.strictEqual(parser.resolution.length, 13);
+        assert.strictEqual(parser.definition.length, 15);
+        assert.strictEqual(parser.resolution.length, 15);
         assert.isFunction(parser.validators[0]);
         assert.isFunction(parser.middleware[0]);
         assert.isTrue(parser.definition.every(def =>

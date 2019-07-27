@@ -5,6 +5,8 @@ const vows = require('vows');
 
 require('coffeescript').register();
 
+const EXPECTED_PARSERS = 21;
+
 vows.describe(`Configuration sources`)
   .addBatch({
     'config.sources': {
@@ -25,7 +27,7 @@ vows.describe(`Configuration sources`)
       },
       'contains all configuration sources': function(config) {
         assert.strictEqual(config.get('ContainsQuote'), '"this has a quote"');
-        assert.strictEqual(config.sources.length, 16);
+        assert.strictEqual(config.sources.length, 21);
       },
       'schema is valid': function(config) {
         const { source, data, module } = config.sources[10];
@@ -57,7 +59,7 @@ vows.describe(`Configuration sources`)
       },
       'contains all configuration sources after initial access': function(config) {
         assert.strictEqual(config.get('ContainsQuote'), '"this has a quote"');
-        assert.strictEqual(config.sources.length, 16);
+        assert.strictEqual(config.sources.length, 21);
       },
     },
     'config.extend()': {
@@ -94,7 +96,7 @@ vows.describe(`Configuration sources`)
       },
       'contains all configuration sources after initial access': function(config) {
         assert.strictEqual(config.get('ContainsQuote'), '"this has a quote"');
-        assert.strictEqual(config.sources.length, 17);
+        assert.strictEqual(config.sources.length, 22);
       },
       'schema is valid when using sub-modules': function(config) {
         assert.strictEqual(config.sources[0].source, __dirname + '/config/default.properties');

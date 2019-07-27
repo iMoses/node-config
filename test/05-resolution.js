@@ -61,6 +61,16 @@ vows.describe(`Config resolution`)
       'parsing configurations from a ".xml" file': function(config) {
         assert.strictEqual(config.get('AnotherModule.parm9'), 'value9');
       },
+      'parsing configurations from a ".ini" file': function(config) {
+        assert.strictEqual(config.get('ini.parser.loaded'), true);
+      },
+      'parsing configurations from a ".d" directory': function(config) {
+        assert.strictEqual(config.get('mongodb.host'), '127.0.0.1');
+        assert.strictEqual(config.get('mongodb.port'), '27017');
+        assert.strictEqual(config.get('mysql.port'), '3306');
+        assert.strictEqual(config.get('users.accounts.guest.length'), 0);
+        console.log(config.sources);
+      },
       'parsing configurations from the "{default-instance}" file': function(config) {
         assert.strictEqual(config.get('Customers.altDbPort'), 4400);
       },

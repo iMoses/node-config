@@ -21,7 +21,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '$NODE_ENV': cleanConfig({
@@ -33,7 +33,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml', 'local-test.json'
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml', 'local-test.json'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '$NODE_APP_INSTANCE': cleanConfig({
@@ -45,7 +45,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default-3.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml', 'local-3.yml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml', 'local-3.yml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '$NODE_ENV; $NODE_APP_INSTANCE': cleanConfig({
@@ -58,7 +58,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default-3.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml', 'local-3.yml',
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml', 'local-3.yml',
           'local-test.json'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
@@ -71,7 +71,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml'
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '$HOSTNAME': cleanConfig({
@@ -83,7 +83,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml'
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '$HOST; $HOSTNAME': cleanConfig({
@@ -96,7 +96,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
     },
@@ -109,7 +109,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '--NODE_ENV': cleanConfig({
@@ -121,7 +121,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml', 'local-test.json'
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml', 'local-test.json'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '--NODE_APP_INSTANCE': cleanConfig({
@@ -133,7 +133,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default-3.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml', 'local-3.yml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml', 'local-3.yml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '--NODE_ENV --NODE_APP_INSTANCE': cleanConfig({
@@ -146,7 +146,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default-3.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml', 'local-3.yml',
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml', 'local-3.yml',
           'local-test.json'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
@@ -159,7 +159,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml'
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '--HOSTNAME': cleanConfig({
@@ -171,7 +171,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml'
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '--HOST --HOSTNAME': cleanConfig({
@@ -184,7 +184,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
     },
@@ -201,7 +201,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default-3.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml', 'local-3.yml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml', 'local-3.yml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
       '$NODE_ENV; --NODE_APP_INSTANCE': cleanConfig({
@@ -217,7 +217,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default-3.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'test.yaml', 'local.yaml', 'local-3.yml',
+          'default.properties', 'default.xml', 'default.ini', 'test.yaml', 'test.d', 'local.yaml', 'local-3.yml',
           'local-test.json'
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
@@ -234,7 +234,7 @@ vows.describe(`Config instance defaults`)
         assert.deepEqual(config.collectConfigFiles(config.options), [
           'default.js', 'default.json', 'default.json5', 'default.hjson',
           'default.toml', 'default.coffee', 'default.yaml', 'default.yml', 'default.cson',
-          'default.properties', 'default.xml', 'local.yaml',
+          'default.properties', 'default.xml', 'default.ini', 'local.yaml',
         ].map(filename => `${__dirname}/config/${filename}`));
       }),
     },
