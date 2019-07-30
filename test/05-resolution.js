@@ -69,7 +69,6 @@ vows.describe(`Config resolution`)
         assert.strictEqual(config.get('mongodb.port'), '27017');
         assert.strictEqual(config.get('mysql.port'), '3306');
         assert.strictEqual(config.get('users.accounts.guest.length'), 0);
-        console.log(config.sources);
       },
       'parsing configurations from the "{default-instance}" file': function(config) {
         assert.strictEqual(config.get('Customers.altDbPort'), 4400);
