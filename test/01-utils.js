@@ -206,7 +206,7 @@ vows.describe(`Configuration utilities`)
       'results are collected recursively': function(object) {
         const strings = [];
         utils.collect(object, val => typeof val ==='string', strings);
-        for (const [ val, obj, key, org ] of strings) {
+        for (const [ val, key, obj, org ] of strings) {
           assert.strictEqual(org, object);
           assert.strictEqual(obj[key], val);
           assert.strictEqual(typeof val, 'string');
@@ -214,7 +214,7 @@ vows.describe(`Configuration utilities`)
         assert.strictEqual(strings.length, 3);
       },
       'results contain the correct arguments': function(object) {
-        for (const [ val, obj, key, org ] of utils.collect(object, val => val instanceof RegExp)) {
+        for (const [ val, key, obj, org ] of utils.collect(object, val => val instanceof RegExp)) {
           assert.strictEqual(key, 0);
           assert.strictEqual(org, object);
           assert.deepEqual(obj, [val, false, 7]);

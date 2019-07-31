@@ -15,6 +15,7 @@ vows.describe(`Config resolution`)
           NODE_CONFIG_ENV: 'test',
           NODE_APP_INSTANCE: '3',
           NODE_CONFIG: JSON.stringify({EnvOverride: {parm3: 'overridden from $NODE_CONFIG', parm4: 100}}),
+          CUSTOM_JSON_ENVIRONMENT_VAR: 'CUSTOM VALUE FROM JSON ENV MAPPING',
         },
         argv: [
           '--NODE_CONFIG',
@@ -93,6 +94,9 @@ vows.describe(`Config resolution`)
       'parsing configurations from the --NODE_CONFIG command-line argument': function(config) {
         assert.strictEqual(config.get('EnvOverride.parm5'), 'overridden from --NODE_CONFIG');
         assert.strictEqual(config.get('EnvOverride.parm6'), 101);
+      },
+      'parsing configurations from the "custom-environment-variables.*" file': function(config) {
+        assert.equal(config.get('customEnvironmentVariables.mappedBy.json'), 'CUSTOM VALUE FROM JSON ENV MAPPING');
       },
       'parsing configurations from the "runtime.json" file': function(config) {
         assert.strictEqual(config.get('Customers.dbName'), 'override_from_runtime_json');

@@ -29,7 +29,7 @@ vows.describe(`Configuration Parser instance`)
     'parser.middleware': {
       topic: () => new Parser,
       'is set with defaults': function(parser) {
-        assert.strictEqual(parser.middleware.length, 1);
+        assert.strictEqual(parser.middleware.length, 2);
         assert.isFunction(parser.middleware[0]);
       },
       'setter accepts only arrays': function(parser) {
@@ -98,12 +98,12 @@ vows.describe(`Configuration Parser instance`)
       },
       'properties are immutable': function(parser) {
         assert.deepEqual(Object.keys(parser.lib.validators), ['gitCrypt']);
-        assert.deepEqual(Object.keys(parser.lib.middleware), ['configTemplate']);
+        assert.deepEqual(Object.keys(parser.lib.middleware), ['configTemplate', 'customEnvironmentVariables']);
         parser.lib.validators = {};
         parser.lib.middleware.testing = true;
         delete parser.lib.middleware.configTemplate;
         assert.deepEqual(Object.keys(parser.lib.validators), ['gitCrypt']);
-        assert.deepEqual(Object.keys(parser.lib.middleware), ['configTemplate']);
+        assert.deepEqual(Object.keys(parser.lib.middleware), ['configTemplate', 'customEnvironmentVariables']);
       }
     },
   })
@@ -232,7 +232,7 @@ vows.describe(`Configuration Parser instance`)
       topic: () => new Parser,
       'mutable properties are set to default': function(parser) {
         assert.strictEqual(parser.validators.length, 1);
-        assert.strictEqual(parser.middleware.length, 1);
+        assert.strictEqual(parser.middleware.length, 2);
         assert.strictEqual(parser.definition.length, 15);
         assert.strictEqual(parser.resolution.length, 15);
         assert.isFunction(parser.validators[0]);
