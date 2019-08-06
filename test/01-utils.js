@@ -6,14 +6,14 @@ const vows = require('vows');
 vows.describe(`Configuration utilities`)
   .addBatch({
     'utils.getArgv()': {
-      'values can be seprarated by spaces': processScope({
+      'values can be separated by spaces': processScope({
         argv: [
           '--NODE_CONFIG_ENV', 'production',
         ],
       }, function() {
         assert.strictEqual(utils.getArgv('NODE_CONFIG_ENV'), 'production');
       }),
-      'values can be seprarated by an equality sign (=)': processScope({
+      'values can be separated by an equality sign (=)': processScope({
         argv: [
           '--NODE_APP_INSTANCE=test',
         ],
@@ -114,6 +114,27 @@ vows.describe(`Configuration utilities`)
         }
       },
     },
+    'utils.isPlainObject()': {
+      'identifies plain-objects correctly': function() {
+        const values = [{key: 'val'}];
+        for (let val of values) {
+          assert.isTrue(utils.isPlainObject(val));
+        }
+      },
+      'identifies non-plain-objects correctly': function() {
+        function F() { this.key = 'val'; }
+        const values = [
+          () => {}, NaN, Infinity, null, undefined,
+          'string', 42, [4, 2], ['some', 'strings'],
+          new Map, new F,
+          process.argv, process.env, process.stdout,
+          new Promise(res => res), Promise.resolve({}),
+        ];
+        for (let val of values) {
+          assert.isFalse(utils.isPlainObject(val));
+        }
+      },
+    },
     'utils.isPromise()': {
       'identifies promises correctly': function() {
         const values = [
@@ -206,17 +227,15 @@ vows.describe(`Configuration utilities`)
       'results are collected recursively': function(object) {
         const strings = [];
         utils.collect(object, val => typeof val ==='string', strings);
-        for (const [ val, key, obj, org ] of strings) {
-          assert.strictEqual(org, object);
+        for (const [ val, key, obj ] of strings) {
           assert.strictEqual(obj[key], val);
           assert.strictEqual(typeof val, 'string');
         }
         assert.strictEqual(strings.length, 3);
       },
       'results contain the correct arguments': function(object) {
-        for (const [ val, key, obj, org ] of utils.collect(object, val => val instanceof RegExp)) {
+        for (const [ val, key, obj ] of utils.collect(object, val => val instanceof RegExp)) {
           assert.strictEqual(key, 0);
-          assert.strictEqual(org, object);
           assert.deepEqual(obj, [val, false, 7]);
           assert.isTrue(val.test('regexp'));
         }
