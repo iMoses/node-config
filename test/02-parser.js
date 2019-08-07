@@ -29,7 +29,7 @@ vows.describe(`Configuration Parser instance`)
     'parser.middleware': {
       topic: () => new Parser,
       'is set with defaults': function(parser) {
-        assert.strictEqual(parser.middleware.length, 2);
+        assert.strictEqual(parser.middleware.length, 1);
         assert.isFunction(parser.middleware[0]);
       },
       'setter accepts only arrays': function(parser) {
@@ -193,7 +193,7 @@ vows.describe(`Configuration Parser instance`)
         parser.middleware = [];
         assert.notStrictEqual(parser.resolution.indexOf('json5'), -1);
         parser.set('json5', filename => {
-          const content = parser.lib.jsonParser.call(parser, filename);
+          const content = parser.lib.jsonParser.call(parser, filename, parser.readFile(filename));
           content.parser = 'json5 override!';
           return content;
         });
@@ -232,7 +232,7 @@ vows.describe(`Configuration Parser instance`)
       topic: () => new Parser,
       'mutable properties are set to default': function(parser) {
         assert.strictEqual(parser.validators.length, 1);
-        assert.strictEqual(parser.middleware.length, 2);
+        assert.strictEqual(parser.middleware.length, 1);
         assert.strictEqual(parser.definition.length, 15);
         assert.strictEqual(parser.resolution.length, 15);
         assert.isFunction(parser.validators[0]);
