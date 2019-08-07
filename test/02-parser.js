@@ -22,7 +22,7 @@ vows.describe(`Configuration Parser instance`)
       },
       'parsing returns null when validations fails': function(parser) {
         assert.isFalse(parser.parse(__dirname + '/config/default.json') === null);
-        parser.validators = [(file, content) => !content.includes('staticArray')];
+        parser.validators = [content => !content.includes('staticArray')];
         assert.isTrue(parser.parse(__dirname + '/config/default.json') === null);
       },
     },
@@ -43,7 +43,7 @@ vows.describe(`Configuration Parser instance`)
       'parsed content is effected by middleware': function(parser) {
         const parse = () => parser.parse(__dirname + '/config/default.json');
         assert.strictEqual(parse().Customers.dbName, 'from_default_json');
-        parser.middleware = [(file, content) => {
+        parser.middleware = [content => {
           content.Customers.dbName = 'from_middleware';
           return content;
         }];
@@ -289,7 +289,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             path: 'Env::CUSTOM_TEMPLATE_FILE_VAR',
@@ -303,7 +303,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             json: 'Env::CUSTOM_TEMPLATE_JSON_VAR|json',
@@ -317,7 +317,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             data: `File::${__dirname}/16-config/env-custom.json`,
@@ -332,7 +332,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             data: `File::${__dirname}/16-config/env-custom.json|String`,
@@ -346,7 +346,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             data: `File::Env::CUSTOM_TEMPLATE_FILE_VAR`,
@@ -360,7 +360,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             data: `File::Env::CUSTOM_TEMPLATE_FILE_VAR|string`,
@@ -374,7 +374,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             data: `Env::CUSTOM_TEMPLATE_ENV_VAR|secret`,
@@ -390,7 +390,7 @@ vows.describe(`Configuration Parser instance`)
         },
       }, function(parser) {
         const [ configTemplate ] = parser.middleware;
-        const object = configTemplate.call(parser, 'template', {
+        const object = configTemplate.call(parser, {
           file: {
             name: 'template',
             data: `Env::CUSTOM_TEMPLATE_ENV_VAR|secret`,
